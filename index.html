@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>استشارات | Cash Clinic</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;background:#f5f7f9;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:1.5rem 1rem}
+.app{width:100%;max-width:640px}
+.editor-bar{background:#111;color:#fff;border-radius:12px;margin-bottom:1rem;overflow:hidden}
+.editor-bar-top{display:flex;justify-content:space-between;align-items:center;padding:0.75rem 1rem}
+.editor-bar-top span{font-size:13px;font-weight:600;color:#aaa}
+.editor-bar-top span b{color:#fff}
+.edit-toggle-btn{padding:6px 14px;font-size:12px;font-weight:600;border:1.5px solid #444;border-radius:8px;background:transparent;color:#ccc;cursor:pointer}
+.edit-toggle-btn:hover{background:#222;color:#fff}
+.edit-toggle-btn.active{background:#1E2B7A;color:#fff;border-color:#1E2B7A}
+.editor-panel{display:none;padding:0 1rem 1rem}
+.editor-panel.open{display:block}
+.etabs{display:flex;gap:6px;margin-bottom:1rem;flex-wrap:wrap}
+.etab{padding:5px 13px;font-size:12px;font-weight:600;border:1.5px solid #333;border-radius:8px;cursor:pointer;background:transparent;color:#888}
+.etab:hover{background:#222;color:#fff}
+.etab.active{background:#1E2B7A;color:#fff;border-color:#1E2B7A}
+.etab-content{display:none}
+.etab-content.active{display:block}
+.e-section{background:#1a1a1a;border-radius:10px;padding:1rem;margin-bottom:0.75rem}
+.e-label{font-size:11px;font-weight:700;color:#666;letter-spacing:0.5px;margin-bottom:6px;text-transform:uppercase}
+.e-input{width:100%;padding:7px 10px;font-size:13px;font-family:inherit;border:1.5px solid #333;border-radius:8px;background:#111;color:#fff;direction:rtl}
+.e-input:focus{outline:none;border-color:#1E2B7A}
+.e-input.ltr{direction:ltr}
+.e-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:6px}
+.e-row-3{display:grid;grid-template-columns:1fr 1fr auto;gap:6px;margin-bottom:6px;align-items:center}
+.e-del{padding:6px 10px;font-size:11px;border:1.5px solid #c0392b;border-radius:6px;background:transparent;color:#c0392b;cursor:pointer}
+.e-del:hover{background:#c0392b;color:#fff}
+.e-add{padding:6px 12px;font-size:12px;border:1.5px solid #444;border-radius:6px;background:transparent;color:#888;cursor:pointer;margin-top:4px}
+.e-add:hover{background:#222;color:#fff}
+.e-select{padding:7px 10px;font-size:13px;font-family:inherit;border:1.5px solid #333;border-radius:8px;background:#111;color:#fff;width:100%;margin-bottom:0.75rem}
+.e-select:focus{outline:none;border-color:#1E2B7A}
+.save-btn{width:100%;padding:10px;font-size:14px;font-weight:700;background:#1E2B7A;color:#fff;border:none;border-radius:10px;cursor:pointer;margin-top:0.5rem}
+.save-btn:hover{background:#15205C}
+.save-btn:disabled{background:#444;color:#888;cursor:default}
+.save-status{font-size:12px;text-align:center;margin-top:6px;min-height:18px}
+.save-status.ok{color:#1E2B7A}
+.save-status.err{color:#e74c3c}
+.save-status.loading{color:#888}
+.survey-card{background:#fff;border-radius:16px;box-shadow:0 2px 20px rgba(0,0,0,0.08);overflow:hidden}
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:1rem 1.25rem;border-bottom:1px solid #f0f0f0}
+.brand{font-size:15px;font-weight:700;color:#111}
+.brand span{color:#1E2B7A}
+.lang-toggle{display:flex;border:1.5px solid #e0e0e0;border-radius:8px;overflow:hidden}
+.lang-btn{padding:5px 13px;font-size:12px;font-weight:600;cursor:pointer;background:transparent;border:none;color:#888}
+.lang-btn.active{background:#f0f0f0;color:#111}
+.progress-wrap{padding:1rem 1.25rem 0}
+.progress-bar{height:4px;background:#eee;border-radius:2px}
+.progress-fill{height:100%;border-radius:2px;background:#1E2B7A;transition:width 0.4s}
+.step-count{font-size:11px;color:#aaa;margin-top:5px}
+.content{padding:1.5rem 1.25rem}
+.step-title{font-size:20px;font-weight:700;color:#111;margin-bottom:6px}
+.step-sub{font-size:14px;color:#888;margin-bottom:0.5rem;line-height:1.6}
+.step-hint{font-size:12px;color:#15205C;font-weight:600;margin-bottom:1rem;background:#eef0f9;padding:6px 10px;border-radius:8px;display:inline-block}
+.options-grid{display:grid;gap:10px}
+.option-card{background:#fff;border:1.5px solid #e8e8e8;border-radius:12px;padding:0.85rem 1rem;cursor:pointer;display:flex;align-items:flex-start;gap:10px;transition:border-color 0.15s,background 0.15s;position:relative}
+.option-card:hover{border-color:#ccc;background:#fafafa}
+.option-card.selected{border-color:#1E2B7A;background:#eef0f9}
+.option-card.selected .opt-title{color:#15205C}
+.option-card.selected .opt-desc{color:#15205C}
+.check-badge{display:none;position:absolute;top:8px;left:10px;width:18px;height:18px;background:#1E2B7A;border-radius:50%;align-items:center;justify-content:center;font-size:10px;color:#fff;font-weight:700}
+.option-card.selected .check-badge{display:flex}
+.opt-icon{font-size:20px;flex-shrink:0;margin-top:1px}
+.opt-title{font-size:14px;font-weight:600;color:#111;margin-bottom:2px}
+.opt-desc{font-size:12px;color:#888;line-height:1.5}
+.free-input{width:100%;padding:0.75rem 1rem;font-size:14px;font-family:inherit;border:1.5px solid #e0e0e0;border-radius:10px;background:#fff;color:#111;resize:vertical;min-height:90px;margin-top:0.5rem}
+.free-input:focus{outline:none;border-color:#1E2B7A}
+.btn-row{display:flex;gap:10px;margin-top:1.5rem;justify-content:flex-end}
+.nav-btn{padding:9px 20px;font-size:14px;font-weight:600;cursor:pointer;border:1.5px solid #ddd;border-radius:10px;background:#fff;color:#555}
+.nav-btn:hover{background:#f5f5f5}
+.nav-btn.primary{background:#1E2B7A;color:#fff;border-color:#1E2B7A}
+.nav-btn.primary:hover{background:#15205C}
+.err-msg{font-size:12px;color:#c0392b;margin-top:8px;display:none}
+.pkg-card{border-radius:14px;overflow:hidden;margin-bottom:1rem;border:1.5px solid #eee}
+.pkg-header{background:#1E2B7A;padding:1rem 1.25rem}
+.pkg-name{font-size:17px;font-weight:700;color:#fff;margin-bottom:4px}
+.pkg-price{font-size:28px;font-weight:700;color:#fff;margin-top:6px}
+.pkg-price span{font-size:13px;font-weight:400;opacity:0.85}
+.pkg-body{padding:1rem 1.25rem;background:#f8f8f8}
+.pkg-row{display:flex;align-items:flex-start;gap:10px;padding:0.5rem 0;border-bottom:1px solid #eee;font-size:13px;color:#333}
+.pkg-row:last-child{border-bottom:none}
+.pkg-check{color:#1E2B7A;font-size:14px;font-weight:700;flex-shrink:0;margin-top:1px}
+.result-wrap{padding:1.25rem}
+.result-badge{display:inline-block;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;margin-bottom:0.75rem}
+.res-title{font-size:18px;font-weight:700;color:#111;margin-bottom:1.25rem}
+.info-card{background:#f8f8f8;border-radius:12px;overflow:hidden;margin-bottom:1rem}
+.info-sec{padding:0.9rem 1rem;border-bottom:1px solid #efefef}
+.info-sec:last-child{border-bottom:none}
+.sec-label{font-size:10px;font-weight:700;color:#aaa;letter-spacing:0.6px;text-transform:uppercase;margin-bottom:0.5rem}
+.sec-text{font-size:13px;color:#333;line-height:1.7}
+.price-row{display:flex;justify-content:space-between;padding:0.45rem 0;border-bottom:1px solid #eee;font-size:13px}
+.price-row:last-child{border-bottom:none}
+.price-label{color:#888}
+.price-val{font-weight:700;color:#111}
+.problems-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px}
+.problem-tag{background:#fef0f0;color:#c0392b;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:600}
+.cta-section{margin-top:1.25rem}
+.cta-title{font-size:14px;font-weight:700;color:#111;margin-bottom:0.75rem;text-align:center}
+.cta-btn-wa{display:flex;align-items:center;justify-content:center;gap:10px;padding:1.1rem;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;text-decoration:none;border:none;background:#25D366;color:#fff;width:100%}
+.cta-btn-wa:hover{opacity:0.9}
+.restart-btn{width:100%;margin-top:0.75rem;padding:8px;font-size:13px;cursor:pointer;border:1.5px solid #e0e0e0;border-radius:10px;background:#fff;color:#888}
+.restart-btn:hover{background:#f5f5f5}
+@media(max-width:480px){.btn-row{flex-direction:column-reverse}.nav-btn{width:100%;text-align:center}}
+</style>
+</head>
+<body>
+<div class="app">
+<div class="editor-bar">
+  <div class="editor-bar-top">
+    <span><b>لوحة التعديل</b> — Cash Clinic Survey</span>
+    <button class="edit-toggle-btn" id="editToggleBtn" onclick="toggleEditor()">✏️ تعديل</button>
+  </div>
+  <div class="editor-panel" id="editorPanel">
+    <div class="etabs">
+      <button class="etab active" onclick="switchETab('questions')">الأسئلة</button>
+      <button class="etab" onclick="switchETab('prices')">الأسعار</button>
+      <button class="etab" onclick="switchETab('messages')">رسائل واتساب</button>
+      <button class="etab" onclick="switchETab('labels')">النصوص العامة</button>
+    </div>
+    <div class="etab-content active" id="etab-questions">
+      <div class="e-section">
+        <div class="e-label">اختر السؤال</div>
+        <select class="e-select" id="qSelect" onchange="loadQEditor()"></select>
+        <div id="qEditorArea"></div>
+      </div>
+    </div>
+    <div class="etab-content" id="etab-prices"><div id="priceEditorArea"></div></div>
+    <div class="etab-content" id="etab-messages"><div id="msgEditorArea"></div></div>
+    <div class="etab-content" id="etab-labels"><div id="labelsEditorArea"></div></div>
+    <button class="save-btn" id="saveBtn" onclick="saveToGitHub()">💾 حفظ التعديلات على الموقع</button>
+    <div class="save-status" id="saveStatus"></div>
+  </div>
+</div>
+<div class="survey-card">
+  <div class="topbar">
+    <div class="brand">Cash <span>Clinic</span> | استشارات</div>
+    <div class="lang-toggle">
+      <button class="lang-btn active" onclick="setLang('ar')">عربي</button>
+      <button class="lang-btn" onclick="setLang('en')">English</button>
+    </div>
+  </div>
+  <div class="progress-wrap">
+    <div class="progress-bar"><div class="progress-fill" id="progress" style="width:12%"></div></div>
+    <p class="step-count" id="stepCount"></p>
+  </div>
+  <div class="content" id="surveyArea"></div>
+</div>
+</div>
+<script>
+const GITHUB_TOKEN='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';
+const GITHUB_REPO='hasanakbarkw-pixel/-';
+const GITHUB_FILE='index.html';
+const WA_NUMBER='96597778404';
+
+let lang='ar',currentStep=1,answers={},editorOpen=false;
+
+const FLOW={
+  startup:['situation','challenge','duration','urgency','source','free'],
+  crisis: ['situation','challenge','revenue','team','urgency','source','free'],
+  growth: ['situation','challenge','revenue','team','urgency','source','free'],
+};
+function getFlow(){return FLOW[answers.situation]||FLOW.startup;}
+function getTotalSteps(){return getFlow().length;}
+function getCurrentKey(){return getFlow()[currentStep-1];}
+
+let cfg={
+  questions:{
+    situation:{titles:{ar:'وضعك الحالي',en:'Your current situation'},subs:{ar:'شنو يصف وضعك بشكل أدق؟',en:'What best describes your situation?'},
+      options:[
+        {v:'startup',icon:'🚀',titles:{ar:'عندي فكرة وأبي أبدأ مشروع',en:'I have an idea and want to start a business'},descs:{ar:'الفكرة موجودة لكن محتاج خطة واضحة',en:'The idea exists but I need a clear plan'}},
+        {v:'crisis',icon:'🆘',titles:{ar:'شركتي تمر في أزمة',en:'My company is facing a crisis'},descs:{ar:'في مشاكل تشغيلية أو مالية أو إدارية',en:'Operational, financial, or management issues'}},
+        {v:'growth',icon:'📈',titles:{ar:'شركتي شغالة وأبي أكبّر أو أحسّن',en:'My business is running and I want to grow'},descs:{ar:'الأساس موجود لكن أبي توسع أو رفع كفاءة',en:'I have a base but want to expand or optimize'}},
+      ]},
+    challenge:{
+      startup:{titles:{ar:'أكبر تحدي تواجهه الحين',en:'Your biggest challenge right now'},subs:{ar:'اختر الأقرب لوضعك',en:'Select the closest to your situation'},multi:false,
+        options:[
+          {v:'validate',icon:'🤔',titles:{ar:'مو متأكد إذا الفكرة تنجح',en:'Not sure if the idea will work'},descs:{ar:'أبي أتحقق من الفكرة قبل ما أصرف فلوس',en:'I want to validate before spending money'}},
+          {v:'plan',icon:'🗺️',titles:{ar:'ما عندي خطة واضحة',en:"I don't have a clear plan"},descs:{ar:'الفكرة موجودة لكن ما أعرف من وين أبدأ',en:"The idea exists but I don't know where to start"}},
+          {v:'vendors',icon:'🤝',titles:{ar:'ما أعرف الموردين والخدمات',en:"I don't know the right vendors"},descs:{ar:'محتاج دليل على مسوقين ومصورين وغيره',en:'I need a guide to marketers, photographers, etc.'}},
+          {v:'costs',icon:'💰',titles:{ar:'خايف التكاليف تكون غلط',en:'Worried about wrong cost estimates'},descs:{ar:'أبي أعرف الأرقام الحقيقية',en:'I want real numbers, not estimates'}},
+          {v:'licenses',icon:'📋',titles:{ar:'ما أعرف شي بالتراخيص وتسجيل العمالة',en:'I know nothing about licenses and labor registration'},descs:{ar:'محتاج فهم المتطلبات القانونية والإدارية',en:'Need to understand legal and administrative requirements'}},
+        ]},
+      crisis:{titles:{ar:'أكبر ٣ مشاكل تعاني منها',en:'Your top 3 problems'},subs:{ar:'اختر حتى ٣ مشاكل تصف وضعك',en:'Select up to 3 problems that describe your situation'},multi:true,max:3,
+        options:[
+          {v:'cashflow',icon:'💸',titles:{ar:'مشكلة سيولة أو التدفق النقدي',en:'Liquidity or cash flow problem'},descs:{ar:'قاعد أدفع من جيبي أو أتسلف عشان أغطي التكاليف',en:'Paying from my own pocket or borrowing to cover costs'}},
+          {v:'customers',icon:'📉',titles:{ar:'خسارة عملاء أو تراجع مبيعات',en:'Losing customers or declining sales'},descs:{ar:'العملاء يمشون والإيرادات تنخفض',en:'Customers leaving and revenue dropping'}},
+          {v:'ops',icon:'⚙️',titles:{ar:'مشاكل تشغيلية وفريق',en:'Operational and team issues'},descs:{ar:'الفريق أو العمليات الداخلية مو شغالة صح',en:'Team or internal operations not working'}},
+          {v:'strategy',icon:'🧭',titles:{ar:'ضايع في الاتجاه الصح',en:'Lost on the right direction'},descs:{ar:'ما أعرف شنو أسوي الأول',en:"I don't know what to do first"}},
+          {v:'notime',icon:'⏰',titles:{ar:'ما عندي وقت أدير',en:'No time to manage'},descs:{ar:'إذا ما جابلت شغلي تخرب الدنيا',en:'If I step away, everything falls apart'}},
+          {v:'margin',icon:'📊',titles:{ar:'هامش ربح ما يسوى التعب',en:'Profit margin not worth the effort'},descs:{ar:'المبيعات شغالة لكن الأرباح شوية',en:'Sales are running but profits are minimal'}},
+          {v:'exit',icon:'🤝',titles:{ar:'أبي أبيع شركتي / أدخل شريك',en:'Want to sell or bring in a partner'},descs:{ar:'ما أعرف قيمة شركتي أو أقيمها على أي أساس',en:"Don't know my company's value or how to assess it"}},
+        ]},
+      growth:{titles:{ar:'أكبر تحدي تواجهه الحين',en:'Your biggest challenge right now'},subs:{ar:'اختر الأقرب لوضعك',en:'Select the closest to your situation'},multi:false,
+        options:[
+          {v:'expand',icon:'🌍',titles:{ar:'أبي أفتح سوق جديد',en:'I want to enter a new market'},descs:{ar:'أبي أكبر أو أدخل منطقة جديدة',en:'Expand to new areas or segments'}},
+          {v:'efficiency',icon:'⚡',titles:{ar:'أبي أقلل الهدر والتكاليف',en:'I want to reduce waste and costs'},descs:{ar:'العمليات فيها كثير هدر أبي أحسنها',en:'Operations have too much waste'}},
+          {v:'team',icon:'👥',titles:{ar:'أبي أبني فريق أقوى',en:'I want to build a stronger team'},descs:{ar:'الفريق يحتاج تطوير أو هيكلة',en:'Team needs development or restructuring'}},
+          {v:'marketing',icon:'📣',titles:{ar:'أبي أحسن تسويقي',en:'I want to improve my marketing'},descs:{ar:'المبيعات ممكن تكون أفضل لو التسويق أقوى',en:'Sales could be better with stronger marketing'}},
+        ]},
+    },
+    revenue:{titles:{ar:'حجم مبيعاتك الشهرية بحدود',en:'Approximate monthly revenue'},subs:{ar:'قيمة الإيرادات الشهرية وليس الأرباح',en:'Total monthly revenue, not profit'},
+      options:[
+        {v:'small',icon:'📦',titles:{ar:'أقل من ١٠،٠٠٠ دينار كويتي بالشهر',en:'Less than KD 10,000 / month'},descs:{ar:'',en:''}},
+        {v:'mid',icon:'📦',titles:{ar:'بين ١٠،٠٠٠ و ٥٠،٠٠٠ دينار بالشهر',en:'KD 10,000 – 50,000 / month'},descs:{ar:'',en:''}},
+        {v:'large',icon:'📦',titles:{ar:'أكثر من ٥٠،٠٠٠ دينار شهرياً',en:'More than KD 50,000 / month'},descs:{ar:'',en:''}},
+      ]},
+    team:{titles:{ar:'حجم فريقك',en:'Team size'},subs:{ar:'جم موظف؟',en:'How many employees?'},
+      optsByRevenue:{
+        small:[
+          {v:'micro',icon:'👤',titles:{ar:'من ١ لـ ١٠ موظفين',en:'1 to 10 employees'},descs:{ar:'',en:''}},
+          {v:'sme',icon:'👥',titles:{ar:'من ١١ لـ ٥٠ موظف',en:'11 to 50 employees'},descs:{ar:'',en:''}},
+        ],
+        mid:[
+          {v:'micro',icon:'👤',titles:{ar:'من ١ لـ ١٠ موظفين',en:'1 to 10 employees'},descs:{ar:'',en:''}},
+          {v:'sme',icon:'👥',titles:{ar:'من ١١ لـ ٥٠ موظف',en:'11 to 50 employees'},descs:{ar:'',en:''}},
+        ],
+        large:[
+          {v:'sme',icon:'👥',titles:{ar:'من ١١ لـ ٥٠ موظف',en:'11 to 50 employees'},descs:{ar:'',en:''}},
+          {v:'large',icon:'🏢',titles:{ar:'أكثر من ٥٠ موظف',en:'More than 50 employees'},descs:{ar:'',en:''}},
+        ],
+      }},
+    duration:{titles:{ar:'المدة الزمنية للفكرة',en:'How long have you had this idea?'},subs:{ar:'منذ متى وأنت تفكر فيها؟',en:'How long have you been thinking about it?'},
+      options:[
+        {v:'new',icon:'⚡',titles:{ar:'أقل من شهر',en:'Less than a month'},descs:{ar:'الموضوع جديد وأبي أتحرك سريع',en:'Fresh idea, want to move fast'}},
+        {v:'mid',icon:'📅',titles:{ar:'١ - ٦ أشهر',en:'1 - 6 months'},descs:{ar:'أفكر فيها من فترة',en:'Been thinking about it for a while'}},
+        {v:'long',icon:'⏳',titles:{ar:'أكثر من ٦ أشهر',en:'More than 6 months'},descs:{ar:'فكرة قديمة وجاء وقت التنفيذ',en:'Old idea, time to act'}},
+      ]},
+    urgency:{titles:{ar:'مستوى الجدية',en:'Level of urgency'},subs:{ar:'شنو وضعك من ناحية التنفيذ؟',en:'How ready are you to act?'},
+      options:[
+        {v:'exploring',icon:'🔍',titles:{ar:'أستكشف الموضوع',en:'Just exploring'},descs:{ar:'أبي أفهم الصورة الكاملة قبل ما أقرر',en:'Want to understand before deciding'}},
+        {v:'ready',icon:'✅',titles:{ar:'جاهز أبدأ خلال شهر',en:'Ready to start within a month'},descs:{ar:'القرار اتخذ، أحتاج خطة وتنفيذ',en:'Decision made, need a plan'}},
+        {v:'urgent',icon:'🔥',titles:{ar:'الأمر عاجل جداً',en:'Very urgent'},descs:{ar:'الوضع ما يحتمل تأجيل',en:'Cannot afford to delay'}},
+      ]},
+    source:{titles:{ar:'كيف وصلت إليّ؟',en:'How did you find me?'},subs:{ar:'يساعدني أعرف مصادر العملاء',en:'Helps me understand where clients come from'},
+      options:[
+        {v:'ref',icon:'👥',titles:{ar:'توصية من شخص أثق فيه',en:'Referral from someone I trust'},descs:{ar:'',en:''}},
+        {v:'social',icon:'📱',titles:{ar:'وسائل التواصل الاجتماعي',en:'Social media'},descs:{ar:'',en:''}},
+        {v:'search',icon:'🔎',titles:{ar:'بحث على الإنترنت',en:'Online search'},descs:{ar:'',en:''}},
+        {v:'event',icon:'🎤',titles:{ar:'فعالية أو لقاء',en:'Event or meetup'},descs:{ar:'',en:''}},
+      ]},
+  },
+  prices:{
+    startup:{price:'١٢٠',dur:'جلستين خلال أسبوعين',urgentStart:'جلسة خلال ٤٨ ساعة',readyStart:'خلال الأسبوع الجاري',flexStart:'حسب جدولك',
+      includes:{ar:['جلسة Discovery (٦٠ دقيقة) — فهم الفكرة والسوق','تقرير Business Validation — هل الفكرة قابلة للنجاح؟','جلسة Roadmap (٩٠ دقيقة) — خطة التأسيس خطوة بخطوة','وثيقة Action Plan — التكاليف الحقيقية والأولويات','قائمة موردين موثوقين — مسوقين ومصورين وغيره'],
+        en:['Discovery Session (60 min) — Understand idea and market','Business Validation Report — Is the idea viable?','Roadmap Session (90 min) — Step-by-step launch plan','Action Plan Document — Real costs and priorities','Trusted Vendor List']}},
+    crisis_startup:{price:'١٢٠',dur:'جلستين خلال أسبوعين',urgentStart:'جلسة طارئة خلال ٢٤ ساعة',readyStart:'هذا الأسبوع',flexStart:'حسب جدولك',
+      includes:{ar:['جلسة Business Audit (٩٠ دقيقة) — تشخيص الوضع الحالي','تقرير Root Cause Analysis — المشكلة الحقيقية وليست الأعراض','جلسة Triage Plan (٦٠ دقيقة) — ماذا تفعل الآن وماذا تؤجل','وثيقة خطة الإنقاذ — قصير ومتوسط وطويل المدى','متابعة بعد ٣٠ يوم'],
+        en:['Business Audit (90 min) — Full diagnosis','Root Cause Analysis Report','Triage Plan Session (60 min)','Rescue Plan Document','30-Day Follow-up']}},
+    crisis_sme:{price:'٢٠٠',dur:'٣ جلسات خلال ٣ أسابيع',urgentStart:'جلسة طارئة خلال ٢٤ ساعة',readyStart:'هذا الأسبوع',flexStart:'حسب جدولك',
+      includes:{ar:['جلسة Business Audit الموسعة (١٢٠ دقيقة) — تشخيص كامل للشركة','تقرير Root Cause Analysis المفصّل','جلسة Triage Plan (٩٠ دقيقة) — خطة إنقاذ فورية','وثيقة خطة الإنقاذ المتكاملة','جلستا متابعة خلال ٦٠ يوم'],
+        en:['Extended Business Audit (120 min)','Detailed Root Cause Analysis Report','Triage Plan Session (90 min)','Comprehensive Rescue Plan Document','Two Follow-up Sessions over 60 days']}},
+    growth_startup:{price:'١٢٠',dur:'جلستين خلال أسبوعين',urgentStart:'هذا الأسبوع بأولوية عالية',readyStart:'خلال أسبوعين',flexStart:'حسب جدولك',
+      includes:{ar:['جلسة Performance Snapshot (٦٠ دقيقة)','تقرير Gap Analysis','جلسة Growth Strategy (٩٠ دقيقة)','وثيقة Execution Plan','تحويل للموردين والشبكة المناسبة'],
+        en:['Performance Snapshot (60 min)','Gap Analysis Report','Growth Strategy Session (90 min)','Execution Plan Document','Referral to the right vendors']}},
+    growth_sme:{price:'٢٠٠',dur:'٣ جلسات خلال ٣ أسابيع',urgentStart:'هذا الأسبوع بأولوية عالية',readyStart:'خلال أسبوعين',flexStart:'حسب جدولك',
+      includes:{ar:['جلسة Performance Snapshot الموسعة (١٢٠ دقيقة)','تقرير Gap Analysis المفصّل','جلستا Growth Strategy (٩٠ دقيقة لكل جلسة)','وثيقة Execution Plan المتكاملة','متابعة وتحويل للموردين الأنسب'],
+        en:['Extended Performance Snapshot (120 min)','Detailed Gap Analysis Report','Two Growth Strategy Sessions','Comprehensive Execution Plan','Follow-up and vendor referral']}},
+  },
+  waMessages:{
+    ar:{
+      startup:'مرحبا، أنا مهتم بباقة المؤسس الذكي (١٢٠ د.ك). عندي فكرة مشروع وأبي استشارة لبداية صحيحة.',
+      crisis_startup:'مرحبا، شركتي تمر في أزمة وأحتاج مساعدة. أنا مهتم بباقة إنقاذ الشركة الناشئة (١٢٠ د.ك).',
+      crisis_sme:'مرحبا، شركتي تمر في أزمة وأحتاج مساعدة. أنا مهتم بباقة إنقاذ الشركة الصغيرة/المتوسطة (٢٠٠ د.ك).',
+      growth_startup:'مرحبا، أبي أطور شركتي. أنا مهتم بباقة النمو الذكي (١٢٠ د.ك).',
+      growth_sme:'مرحبا، أبي أطور شركتي. أنا مهتم بباقة النمو للشركات الصغيرة والمتوسطة (٢٠٠ د.ك).',
+    },
+    en:{
+      startup:"Hi, I'm interested in the Smart Founder Package (KD 120). I have a business idea and need consultation.",
+      crisis_startup:"Hi, my startup is in crisis. I'm interested in the Startup Rescue Package (KD 120).",
+      crisis_sme:"Hi, my company is in crisis. I'm interested in the SME Rescue Package (KD 200).",
+      growth_startup:"Hi, I want to grow my business. I'm interested in the Smart Growth Package (KD 120).",
+      growth_sme:"Hi, I want to grow my company. I'm interested in the SME Growth Package (KD 200).",
+    }
+  },
+  labels:{
+    ctaTitle:{ar:'الخطوة التالية — تواصل معي الحين',en:'Next Step — Contact me now'},
+    ctaWa:{ar:'💬 تواصل عبر واتساب',en:'💬 Chat on WhatsApp'},
+    pkgNames:{
+      ar:{startup:'باقة المؤسس الذكي',crisis_startup:'باقة إنقاذ الشركة الناشئة',crisis_sme:'باقة إنقاذ الشركة الصغيرة / المتوسطة',growth_startup:'باقة النمو الذكي',growth_sme:'باقة النمو للشركات الصغيرة / المتوسطة'},
+      en:{startup:'Smart Founder Package',crisis_startup:'Startup Rescue Package',crisis_sme:'SME Rescue Package',growth_startup:'Smart Growth Package',growth_sme:'SME Growth Package'},
+    },
+  }
+};
+
+function getCompanyClass(){
+  const rev=answers.revenue,team=answers.team;
+  if(!rev||!team) return 'startup';
+  if(rev==='small'&&team==='micro') return 'startup';
+  return 'sme';
+}
+function getPkgKey(){
+  const sit=answers.situation||'startup';
+  if(sit==='startup') return 'startup';
+  return sit+'_'+getCompanyClass();
+}
+
+const TT={
+  ar:{stepOf:'السؤال {n} من {total}',next:'التالي →',prev:'→ رجوع',showResult:'عرض نتيجتك ←',restart:'← ابدأ من جديد',errSelect:'الرجاء اختيار إجابة',errMulti:'اختر مشكلة واحدة على الأقل',freeLabel:'بكلمتين — شنو أكبر هدف تبيه من الاستشارة؟',freeSub:'(اختياري)',freePh:'مثال: أبي أعرف من وين أبدأ وأتجنب الأخطاء المكلفة...',resultLabel:'نتيجة التصنيف',resultTitle:'باقتك المقترحة',secProblems:'المشاكل التي حددتها',secIncludes:'شنو تحصل في الباقة',secDetails:'التفاصيل',lblDur:'المدة',lblPrice:'السعر',lblStart:'موعد البداية',lblClass:'تصنيف شركتك',multiHint:'يمكنك اختيار حتى ٣ مشاكل',currency:'دينار كويتي',
+    badgeLabels:{startup:'فئة: مشروع جديد',crisis_startup:'فئة: شركة ناشئة — أزمة',crisis_sme:'فئة: شركة صغيرة/متوسطة — أزمة',growth_startup:'فئة: شركة ناشئة — نمو',growth_sme:'فئة: شركة صغيرة/متوسطة — نمو'},
+    classLabels:{startup:'شركة ناشئة',sme:'شركة صغيرة أو متوسطة'}},
+  en:{stepOf:'Question {n} of {total}',next:'Next →',prev:'← Back',showResult:'Show My Result →',restart:'← Start Over',errSelect:'Please select an answer',errMulti:'Select at least one problem',freeLabel:'In your words — what is the #1 thing you want to achieve?',freeSub:'(optional)',freePh:'e.g. I want to know where to start and avoid costly mistakes...',resultLabel:'Classification Result',resultTitle:'Your Recommended Package',secProblems:'Problems you identified',secIncludes:"What's included",secDetails:'Details',lblDur:'Duration',lblPrice:'Price',lblStart:'Start Date',lblClass:'Company classification',multiHint:'You can select up to 3 problems',currency:'KD',
+    badgeLabels:{startup:'Category: New Business',crisis_startup:'Category: Startup — Crisis',crisis_sme:'Category: SME — Crisis',growth_startup:'Category: Startup — Growth',growth_sme:'Category: SME — Growth'},
+    classLabels:{startup:'Startup',sme:'Small or Medium Enterprise'}},
+};
+function tx(k){return TT[lang][k]||k;}
+
+function setLang(l){
+  lang=l;document.documentElement.lang=l;document.documentElement.dir=l==='ar'?'rtl':'ltr';
+  document.querySelectorAll('.lang-btn').forEach(b=>b.classList.toggle('active',b.textContent.trim()===(l==='ar'?'عربي':'English')));
+  render();
+}
+function render(){
+  const total=getTotalSteps(),key=getCurrentKey();
+  const pct=Math.round((currentStep/(total+1))*100);
+  document.getElementById('progress').style.width=pct+'%';
+  document.getElementById('stepCount').textContent=key!=='free'?tx('stepOf').replace('{n}',currentStep).replace('{total}',total):'';
+  if(key==='free'){renderFree();return;}
+  renderStep(key);
+}
+function getQDef(key){
+  if(key==='challenge') return cfg.questions.challenge[answers.situation||'startup'];
+  if(key==='team'){const rev=answers.revenue||'small';return{...cfg.questions.team,options:cfg.questions.team.optsByRevenue[rev]};}
+  return cfg.questions[key];
+}
+function renderStep(key){
+  const q=getQDef(key);
+  const isMulti=q.multi===true,maxSel=q.max||1;
+  const selArr=isMulti?(Array.isArray(answers[key])?answers[key]:[]):(answers[key]?[answers[key]]:[]);
+  const hintHtml=isMulti?`<div class="step-hint">✔ ${tx('multiHint')}</div>`:'';
+  const optsHtml=q.options.map(o=>{
+    const sel=selArr.includes(o.v);
+    return `<div class="option-card${sel?' selected':''}" data-key="${key}" data-val="${o.v}" data-multi="${isMulti}" data-max="${maxSel}" onclick="handleSelect(this)">
+      <div class="check-badge">✓</div>
+      <div class="opt-icon">${o.icon}</div>
+      <div><div class="opt-title">${o.titles[lang]}</div>${o.descs&&o.descs[lang]?`<div class="opt-desc">${o.descs[lang]}</div>`:''}</div>
+    </div>`;
+  }).join('');
+  const prevBtn=currentStep>1?`<button class="nav-btn" onclick="goBack()">${tx('prev')}</button>`:'';
+  document.getElementById('surveyArea').innerHTML=`
+    <div class="step-title">${q.titles[lang]}</div>
+    <div class="step-sub">${q.subs[lang]}</div>
+    ${hintHtml}
+    <div class="options-grid">${optsHtml}</div>
+    <div class="err-msg" id="err-msg">${isMulti?tx('errMulti'):tx('errSelect')}</div>
+    <div class="btn-row">${prevBtn}<button class="nav-btn primary" onclick="goNext()">${tx('next')}</button></div>`;
+}
+function handleSelect(el){
+  const key=el.dataset.key,val=el.dataset.val,isMulti=el.dataset.multi==='true',maxSel=parseInt(el.dataset.max)||1;
+  if(isMulti){
+    let arr=Array.isArray(answers[key])?[...answers[key]]:[];
+    if(arr.includes(val)){arr=arr.filter(x=>x!==val);}
+    else if(arr.length<maxSel){arr.push(val);}
+    else{arr.shift();arr.push(val);}
+    answers[key]=arr;
+    document.querySelectorAll(`.option-card[data-key="${key}"]`).forEach(c=>{
+      const s=arr.includes(c.dataset.val);
+      c.classList.toggle('selected',s);
+    });
+  }else{
+    answers[key]=val;
+    document.querySelectorAll(`.option-card[data-key="${key}"]`).forEach(c=>c.classList.remove('selected'));
+    el.classList.add('selected');
+    const err=document.getElementById('err-msg');if(err)err.style.display='none';
+    setTimeout(()=>{currentStep++;render();window.scrollTo({top:0,behavior:'smooth'});},320);
+  }
+}
+function renderFree(){
+  const prevBtn=`<button class="nav-btn" onclick="goBack()">${tx('prev')}</button>`;
+  document.getElementById('surveyArea').innerHTML=`
+    <div class="step-title">${tx('freeLabel')}</div>
+    <div class="step-sub">${tx('freeSub')}</div>
+    <textarea class="free-input" id="freetext" placeholder="${tx('freePh')}">${answers._free||''}</textarea>
+    <div class="btn-row">${prevBtn}<button class="nav-btn primary" onclick="submitFree()">${tx('showResult')}</button></div>`;
+}
+function goNext(){
+  const key=getCurrentKey(),q=getQDef(key),isMulti=q&&q.multi===true,val=answers[key];
+  if(isMulti){if(!val||!Array.isArray(val)||val.length===0){document.getElementById('err-msg').style.display='block';return;}}
+  else{if(!val){const e=document.getElementById('err-msg');if(e)e.style.display='block';return;}}
+  currentStep++;render();window.scrollTo({top:0,behavior:'smooth'});
+}
+function goBack(){if(currentStep>1){currentStep--;render();window.scrollTo({top:0,behavior:'smooth'});}}
+function submitFree(){const ft=document.getElementById('freetext');if(ft)answers._free=ft.value;renderResult();}
+
+function renderResult(){
+  const pkgKey=getPkgKey(),p=cfg.prices[pkgKey];
+  const urgency=answers.urgency;
+  const startDate=urgency==='urgent'?p.urgentStart:urgency==='ready'?p.readyStart:p.flexStart;
+  const pkgName=cfg.labels.pkgNames[lang][pkgKey];
+  const badge=TT[lang].badgeLabels[pkgKey];
+  const waMsg=encodeURIComponent(cfg.waMessages[lang][pkgKey]);
+  const waUrl=`https://wa.me/${WA_NUMBER}?text=${waMsg}`;
+  const includes=p.includes[lang];
+  const sit=answers.situation,cls=getCompanyClass();
+  const problemsArr=Array.isArray(answers.challenge)?answers.challenge:(answers.challenge?[answers.challenge]:[]);
+  const cq=cfg.questions.challenge[sit]||cfg.questions.challenge.startup;
+  const problemLabels=problemsArr.map(v=>{const o=cq.options.find(x=>x.v===v);return o?o.titles[lang]:v;});
+  const problemsHtml=problemLabels.length?`<div class="info-sec"><div class="sec-label">${tx('secProblems')}</div><div class="problems-tags">${problemLabels.map(l=>`<span class="problem-tag">${l}</span>`).join('')}</div></div>`:'';
+  const freeSection=answers._free?`<div class="info-sec"><div class="sec-label">هدفك</div><div style="background:#f0f0f0;border-radius:8px;padding:0.75rem;font-size:13px;color:#666;font-style:italic">"${answers._free}"</div></div>`:'';
+  const classSection=(sit==='crisis'||sit==='growth')?`<div class="price-row"><span class="price-label">${tx('lblClass')}</span><span class="price-val">${TT[lang].classLabels[cls]}</span></div>`:'';
+  document.getElementById('stepCount').textContent='';
+  document.getElementById('surveyArea').innerHTML=`
+    <div class="result-wrap">
+      <div class="result-badge" style="background:#fef0f0;color:#c0392b">${badge}</div>
+      <div class="res-title">${tx('resultTitle')}</div>
+      <div class="pkg-card">
+        <div class="pkg-header">
+          <div class="pkg-name">${pkgName}</div>
+          <div class="pkg-price">${p.price} <span>${tx('currency')}</span></div>
+        </div>
+        <div class="pkg-body">
+          <div class="sec-label" style="margin-bottom:0.6rem">${tx('secIncludes')}</div>
+          ${includes.map(i=>`<div class="pkg-row"><span class="pkg-check">✓</span><span>${i}</span></div>`).join('')}
+        </div>
+      </div>
+      <div class="info-card">
+        ${problemsHtml}
+        ${freeSection}
+        <div class="info-sec"><div class="sec-label">${tx('secDetails')}</div>
+          ${classSection}
+          <div class="price-row"><span class="price-label">${tx('lblDur')}</span><span class="price-val">${p.dur}</span></div>
+          <div class="price-row"><span class="price-label">${tx('lblStart')}</span><span class="price-val">${startDate}</span></div>
+        </div>
+      </div>
+      <div class="cta-section">
+        <div class="cta-title">${cfg.labels.ctaTitle[lang]}</div>
+        <a class="cta-btn-wa" href="${waUrl}" target="_blank">${cfg.labels.ctaWa[lang]}</a>
+      </div>
+      <button class="restart-btn" onclick="restartSurvey()">${tx('restart')}</button>
+    </div>`;
+}
+function restartSurvey(){answers={};currentStep=1;render();window.scrollTo({top:0,behavior:'smooth'});}
+
+/* EDITOR */
+function toggleEditor(){
+  editorOpen=!editorOpen;
+  document.getElementById('editorPanel').classList.toggle('open',editorOpen);
+  const btn=document.getElementById('editToggleBtn');
+  btn.classList.toggle('active',editorOpen);
+  btn.textContent=editorOpen?'✕ إغلاق':'✏️ تعديل';
+  if(editorOpen)renderEditorTabs();
+}
+function switchETab(tab){
+  document.querySelectorAll('.etab').forEach((b,i)=>b.classList.toggle('active',['questions','prices','messages','labels'][i]===tab));
+  document.querySelectorAll('.etab-content').forEach(c=>c.classList.remove('active'));
+  document.getElementById('etab-'+tab).classList.add('active');
+}
+function renderEditorTabs(){renderQSelector();renderPriceEditor();renderMsgEditor();renderLabelsEditor();}
+function renderQSelector(){
+  const keys=['situation','challenge_startup','challenge_crisis','challenge_growth','revenue','team_small','duration','urgency','source'];
+  const labels={situation:'١. الوضع الحالي',challenge_startup:'٢. التحدي — مشروع جديد',challenge_crisis:'٢. التحدي — أزمة',challenge_growth:'٢. التحدي — نمو',revenue:'٣. حجم المبيعات',team_small:'٤. حجم الفريق',duration:'المدة',urgency:'مستوى الجدية',source:'مصدر التعرف'};
+  document.getElementById('qSelect').innerHTML=keys.map(k=>`<option value="${k}">${labels[k]||k}</option>`).join('');
+  loadQEditor();
+}
+function getEditorQ(key){
+  if(key.startsWith('challenge_')){const t=key.replace('challenge_','');return cfg.questions.challenge[t];}
+  if(key==='team_small') return{...cfg.questions.team,options:cfg.questions.team.optsByRevenue.small};
+  return cfg.questions[key];
+}
+function loadQEditor(){
+  const key=document.getElementById('qSelect').value,q=getEditorQ(key);
+  if(!q){document.getElementById('qEditorArea').innerHTML='';return;}
+  let html=`<div class="e-label" style="margin-top:0.75rem">عنوان السؤال</div>
+    <div class="e-row">
+      <div><div class="e-label">عربي</div><input class="e-input" id="eq-title-ar" value="${q.titles.ar}"></div>
+      <div><div class="e-label">English</div><input class="e-input ltr" id="eq-title-en" value="${q.titles.en}"></div>
+    </div><div class="e-label">الخيارات</div>`;
+  q.options.forEach((o,oi)=>{
+    html+=`<div class="e-row-3">
+      <input class="e-input" id="eo-ar-${oi}" value="${o.titles.ar}">
+      <input class="e-input ltr" id="eo-en-${oi}" value="${o.titles.en}">
+      <button class="e-del" onclick="deleteEditorOpt('${key}',${oi})">✕</button>
+    </div>`;
+  });
+  html+=`<button class="e-add" onclick="addEditorOpt('${key}')">+ إضافة خيار</button>`;
+  document.getElementById('qEditorArea').innerHTML=html;
+}
+function addEditorOpt(key){
+  const newO={v:'opt_'+Date.now(),icon:'➕',titles:{ar:'خيار جديد',en:'New Option'},descs:{ar:'',en:''}};
+  if(key.startsWith('challenge_')){cfg.questions.challenge[key.replace('challenge_','')].options.push(newO);}
+  else if(cfg.questions[key]&&cfg.questions[key].options) cfg.questions[key].options.push(newO);
+  loadQEditor();
+}
+function deleteEditorOpt(key,idx){
+  if(key.startsWith('challenge_')){const arr=cfg.questions.challenge[key.replace('challenge_','')].options;if(arr.length>1)arr.splice(idx,1);}
+  else if(cfg.questions[key]&&cfg.questions[key].options){const arr=cfg.questions[key].options;if(arr.length>1)arr.splice(idx,1);}
+  loadQEditor();
+}
+function saveQEditor(){
+  const key=document.getElementById('qSelect').value,q=getEditorQ(key);if(!q)return;
+  const ta=document.getElementById('eq-title-ar'),te=document.getElementById('eq-title-en');
+  if(ta)q.titles.ar=ta.value;if(te)q.titles.en=te.value;
+  q.options.forEach((o,oi)=>{
+    const a=document.getElementById(`eo-ar-${oi}`),e=document.getElementById(`eo-en-${oi}`);
+    if(a)o.titles.ar=a.value;if(e)o.titles.en=e.value;
+  });
+}
+function renderPriceEditor(){
+  const keys=Object.keys(cfg.prices);
+  const names={startup:'مشروع جديد',crisis_startup:'أزمة — ناشئة',crisis_sme:'أزمة — صغيرة/متوسطة',growth_startup:'نمو — ناشئة',growth_sme:'نمو — صغيرة/متوسطة'};
+  let html='';
+  keys.forEach(k=>{
+    const p=cfg.prices[k];
+    html+=`<div class="e-section"><div class="e-label">${names[k]||k}</div>
+      <div class="e-label">السعر (أرقام فقط)</div><input class="e-input ltr" id="ep-${k}-price" value="${p.price}">
+      <div class="e-label" style="margin-top:6px">المدة</div><input class="e-input" id="ep-${k}-dur" value="${p.dur}">
+      <div class="e-label" style="margin-top:6px">موعد بداية (عاجل)</div><input class="e-input" id="ep-${k}-urgentStart" value="${p.urgentStart}">
+      <div class="e-label" style="margin-top:6px">موعد بداية (جاهز)</div><input class="e-input" id="ep-${k}-readyStart" value="${p.readyStart}">
+    </div>`;
+  });
+  document.getElementById('priceEditorArea').innerHTML=html;
+}
+function savePriceEditor(){
+  Object.keys(cfg.prices).forEach(k=>{
+    const p=cfg.prices[k];
+    ['price','dur','urgentStart','readyStart'].forEach(f=>{const el=document.getElementById(`ep-${k}-${f}`);if(el)p[f]=el.value;});
+  });
+}
+function renderMsgEditor(){
+  let html='';
+  const labels={startup:'مشروع جديد',crisis_startup:'أزمة ناشئة',crisis_sme:'أزمة صغيرة/متوسطة',growth_startup:'نمو ناشئة',growth_sme:'نمو صغيرة/متوسطة'};
+  ['ar','en'].forEach(l=>{
+    html+=`<div class="e-section"><div class="e-label">رسائل واتساب — ${l==='ar'?'عربي':'English'}</div>`;
+    Object.keys(cfg.waMessages[l]).forEach(k=>{
+      html+=`<div style="margin-bottom:8px"><div class="e-label">${labels[k]||k}</div><textarea class="e-input${l==='en'?' ltr':''}" id="em-${l}-${k}" style="min-height:55px;resize:vertical">${cfg.waMessages[l][k]}</textarea></div>`;
+    });
+    html+='</div>';
+  });
+  document.getElementById('msgEditorArea').innerHTML=html;
+}
+function saveMsgEditor(){
+  ['ar','en'].forEach(l=>{Object.keys(cfg.waMessages[l]).forEach(k=>{const el=document.getElementById(`em-${l}-${k}`);if(el)cfg.waMessages[l][k]=el.value;});});
+}
+function renderLabelsEditor(){
+  document.getElementById('labelsEditorArea').innerHTML=`<div class="e-section">
+    <div class="e-label">عنوان قسم التواصل</div>
+    <div class="e-row">
+      <input class="e-input" id="el-ctaTitle-ar" value="${cfg.labels.ctaTitle.ar}">
+      <input class="e-input ltr" id="el-ctaTitle-en" value="${cfg.labels.ctaTitle.en}">
+    </div>
+    <div class="e-label">نص زر واتساب</div>
+    <div class="e-row">
+      <input class="e-input" id="el-ctaWa-ar" value="${cfg.labels.ctaWa.ar}">
+      <input class="e-input ltr" id="el-ctaWa-en" value="${cfg.labels.ctaWa.en}">
+    </div>
+  </div>`;
+}
+function saveLabelsEditor(){
+  cfg.labels.ctaTitle.ar=document.getElementById('el-ctaTitle-ar').value;
+  cfg.labels.ctaTitle.en=document.getElementById('el-ctaTitle-en').value;
+  cfg.labels.ctaWa.ar=document.getElementById('el-ctaWa-ar').value;
+  cfg.labels.ctaWa.en=document.getElementById('el-ctaWa-en').value;
+}
+
+async function saveToGitHub(){
+  saveQEditor();savePriceEditor();saveMsgEditor();saveLabelsEditor();
+  const btn=document.getElementById('saveBtn'),status=document.getElementById('saveStatus');
+  btn.disabled=true;btn.textContent='⏳ جاري الحفظ...';
+  status.className='save-status loading';status.textContent='يتم رفع التعديلات...';
+  try{
+    const getR=await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_FILE}`,{headers:{'Authorization':`token ${GITHUB_TOKEN}`,'Accept':'application/vnd.github.v3+json'}});
+    if(!getR.ok) throw new Error('فشل في قراءة الملف — تحقق من الـ Token');
+    const fd=await getR.json();
+    const encoded=btoa(unescape(encodeURIComponent(document.documentElement.outerHTML)));
+    const putR=await fetch(`https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_FILE}`,{method:'PUT',headers:{'Authorization':`token ${GITHUB_TOKEN}`,'Accept':'application/vnd.github.v3+json','Content-Type':'application/json'},body:JSON.stringify({message:'تحديث الاستبيان',content:encoded,sha:fd.sha})});
+    if(!putR.ok){const e=await putR.json();throw new Error(e.message||'فشل الرفع');}
+    btn.disabled=false;btn.textContent='💾 حفظ التعديلات على الموقع';
+    status.className='save-status ok';status.textContent='✅ تم الحفظ! الموقع يتحدث خلال دقيقة.';
+    render();
+  }catch(e){
+    btn.disabled=false;btn.textContent='💾 حفظ التعديلات على الموقع';
+    status.className='save-status err';status.textContent='❌ خطأ: '+e.message;
+  }
+}
+render();
+</script>
+</body>
+</html>
