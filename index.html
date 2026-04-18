@@ -8,7 +8,7 @@
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Segoe UI',Arial,sans-serif;background:#f5f7f9;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:1.5rem 1rem}
 .app{width:100%;max-width:640px}
-.editor-bar{background:#111;color:#fff;border-radius:12px;margin-bottom:1rem;overflow:hidden}
+.editor-bar{display:none}
 .editor-bar-top{display:flex;justify-content:space-between;align-items:center;padding:0.75rem 1rem}
 .editor-bar-top span{font-size:13px;font-weight:600;color:#aaa}
 .editor-bar-top span b{color:#fff}
@@ -44,9 +44,17 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f5f7f9;min-height:100vh
 .save-status.err{color:#e74c3c}
 .save-status.loading{color:#888}
 .survey-card{background:#fff;border-radius:16px;box-shadow:0 2px 20px rgba(0,0,0,0.08);overflow:hidden}
-.topbar{display:flex;justify-content:space-between;align-items:center;padding:1rem 1.25rem;border-bottom:1px solid #f0f0f0}
+.topbar{display:flex;justify-content:space-between;align-items:center;padding:0.85rem 1.25rem;border-bottom:1px solid #f0f0f0;background:#fff}
 .brand{font-size:15px;font-weight:700;color:#111}
 .brand span{color:#1E2B7A}
+.logo-bar{display:flex;align-items:center;justify-content:center;gap:0;flex:1}
+.logo-ha{display:flex;align-items:center;gap:8px}
+.logo-ha-text{display:flex;flex-direction:column;line-height:1.1}
+.logo-ha-name{font-size:13px;font-weight:700;color:#1E2B7A;letter-spacing:2px;font-family:Arial,sans-serif}
+.logo-divider{width:1.5px;height:44px;background:#1E2B7A;margin:0 18px;opacity:0.3}
+.logo-cc{display:flex;flex-direction:column;align-items:flex-start;gap:1px}
+.logo-cc-name{font-size:13px;font-weight:700;color:#1E2B7A;letter-spacing:1.5px;font-family:Arial,sans-serif}
+.logo-cc-sub{font-size:9px;color:#1E2B7A;opacity:0.6;letter-spacing:2px;font-family:Arial,sans-serif;text-transform:uppercase}
 .lang-toggle{display:flex;border:1.5px solid #e0e0e0;border-radius:8px;overflow:hidden}
 .lang-btn{padding:5px 13px;font-size:12px;font-weight:600;cursor:pointer;background:transparent;border:none;color:#888}
 .lang-btn.active{background:#f0f0f0;color:#111}
@@ -79,11 +87,11 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f5f7f9;min-height:100vh
 .err-msg{font-size:12px;color:#c0392b;margin-top:8px;display:none}
 .pkg-card{border-radius:14px;overflow:hidden;margin-bottom:1rem;border:1.5px solid #eee}
 .pkg-header{background:#1E2B7A;padding:1rem 1.25rem}
-.pkg-name{font-size:17px;font-weight:700;color:#fff;margin-bottom:4px}
-.pkg-price{font-size:28px;font-weight:700;color:#fff;margin-top:6px}
-.pkg-price span{font-size:13px;font-weight:400;opacity:0.85}
+.pkg-name{font-size:20px;font-weight:700;color:#fff;margin-bottom:6px}
+.pkg-price{font-size:42px;font-weight:700;color:#fff;margin-top:6px;font-family:Arial,sans-serif;direction:ltr;text-align:right}
+.pkg-price span{font-size:16px;font-weight:400;opacity:0.85;font-family:Arial,sans-serif}
 .pkg-body{padding:1rem 1.25rem;background:#f8f8f8}
-.pkg-row{display:flex;align-items:flex-start;gap:10px;padding:0.5rem 0;border-bottom:1px solid #eee;font-size:13px;color:#333}
+.pkg-row{display:flex;align-items:flex-start;gap:10px;padding:0.6rem 0;border-bottom:1px solid #eee;font-size:15px;color:#333}
 .pkg-row:last-child{border-bottom:none}
 .pkg-check{color:#1E2B7A;font-size:14px;font-weight:700;flex-shrink:0;margin-top:1px}
 .result-wrap{padding:1.25rem}
@@ -139,7 +147,25 @@ body{font-family:'Segoe UI',Arial,sans-serif;background:#f5f7f9;min-height:100vh
 </div>
 <div class="survey-card">
   <div class="topbar">
-    <div class="brand">Cash <span>Clinic</span> | استشارات</div>
+    <div class="logo-bar">
+      <div class="logo-ha">
+        <svg width="36" height="36" viewBox="0 0 80 80" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <line x1="58" y1="4" x2="58" y2="76" stroke="#1E2B7A" stroke-width="5" stroke-linecap="round"/>
+          <line x1="58" y1="4" x2="30" y2="55" stroke="#1E2B7A" stroke-width="5" stroke-linecap="round"/>
+          <path d="M45 38 Q38 52 28 62 Q20 70 14 72" stroke="#1E2B7A" stroke-width="5" stroke-linecap="round" fill="none"/>
+          <path d="M38 56 Q30 64 22 70" stroke="#1E2B7A" stroke-width="4" stroke-linecap="round" fill="none"/>
+        </svg>
+        <div class="logo-ha-text">
+          <span class="logo-ha-name">HASSAN</span>
+          <span class="logo-ha-name">AKBAR</span>
+        </div>
+      </div>
+      <div class="logo-divider"></div>
+      <div class="logo-cc">
+        <span class="logo-cc-name">CASH CLINIC</span>
+        <span class="logo-cc-sub">Business Consulting</span>
+      </div>
+    </div>
     <div class="lang-toggle">
       <button class="lang-btn active" onclick="setLang('ar')">عربي</button>
       <button class="lang-btn" onclick="setLang('en')">English</button>
@@ -246,19 +272,19 @@ let cfg={
       ]},
   },
   prices:{
-    startup:{price:'١٢٠',dur:'جلستين خلال أسبوعين',urgentStart:'جلسة خلال ٤٨ ساعة',readyStart:'خلال الأسبوع الجاري',flexStart:'حسب جدولك',
+    startup:{price:'120',dur:'جلستين خلال أسبوعين',urgentStart:'جلسة خلال ٤٨ ساعة',readyStart:'خلال الأسبوع الجاري',flexStart:'حسب جدولك',
       includes:{ar:['جلسة Discovery (٦٠ دقيقة) — فهم الفكرة والسوق','تقرير Business Validation — هل الفكرة قابلة للنجاح؟','جلسة Roadmap (٩٠ دقيقة) — خطة التأسيس خطوة بخطوة','وثيقة Action Plan — التكاليف الحقيقية والأولويات','قائمة موردين موثوقين — مسوقين ومصورين وغيره'],
         en:['Discovery Session (60 min) — Understand idea and market','Business Validation Report — Is the idea viable?','Roadmap Session (90 min) — Step-by-step launch plan','Action Plan Document — Real costs and priorities','Trusted Vendor List']}},
-    crisis_startup:{price:'١٢٠',dur:'جلستين خلال أسبوعين',urgentStart:'جلسة طارئة خلال ٢٤ ساعة',readyStart:'هذا الأسبوع',flexStart:'حسب جدولك',
+    crisis_startup:{price:'120',dur:'جلستين خلال أسبوعين',urgentStart:'جلسة طارئة خلال ٢٤ ساعة',readyStart:'هذا الأسبوع',flexStart:'حسب جدولك',
       includes:{ar:['جلسة Business Audit (٩٠ دقيقة) — تشخيص الوضع الحالي','تقرير Root Cause Analysis — المشكلة الحقيقية وليست الأعراض','جلسة Triage Plan (٦٠ دقيقة) — ماذا تفعل الآن وماذا تؤجل','وثيقة خطة الإنقاذ — قصير ومتوسط وطويل المدى','متابعة بعد ٣٠ يوم'],
         en:['Business Audit (90 min) — Full diagnosis','Root Cause Analysis Report','Triage Plan Session (60 min)','Rescue Plan Document','30-Day Follow-up']}},
-    crisis_sme:{price:'٢٠٠',dur:'٣ جلسات خلال ٣ أسابيع',urgentStart:'جلسة طارئة خلال ٢٤ ساعة',readyStart:'هذا الأسبوع',flexStart:'حسب جدولك',
+    crisis_sme:{price:'200',dur:'٣ جلسات خلال ٣ أسابيع',urgentStart:'جلسة طارئة خلال ٢٤ ساعة',readyStart:'هذا الأسبوع',flexStart:'حسب جدولك',
       includes:{ar:['جلسة Business Audit الموسعة (١٢٠ دقيقة) — تشخيص كامل للشركة','تقرير Root Cause Analysis المفصّل','جلسة Triage Plan (٩٠ دقيقة) — خطة إنقاذ فورية','وثيقة خطة الإنقاذ المتكاملة','جلستا متابعة خلال ٦٠ يوم'],
         en:['Extended Business Audit (120 min)','Detailed Root Cause Analysis Report','Triage Plan Session (90 min)','Comprehensive Rescue Plan Document','Two Follow-up Sessions over 60 days']}},
-    growth_startup:{price:'١٢٠',dur:'جلستين خلال أسبوعين',urgentStart:'هذا الأسبوع بأولوية عالية',readyStart:'خلال أسبوعين',flexStart:'حسب جدولك',
+    growth_startup:{price:'120',dur:'جلستين خلال أسبوعين',urgentStart:'هذا الأسبوع بأولوية عالية',readyStart:'خلال أسبوعين',flexStart:'حسب جدولك',
       includes:{ar:['جلسة Performance Snapshot (٦٠ دقيقة)','تقرير Gap Analysis','جلسة Growth Strategy (٩٠ دقيقة)','وثيقة Execution Plan','تحويل للموردين والشبكة المناسبة'],
         en:['Performance Snapshot (60 min)','Gap Analysis Report','Growth Strategy Session (90 min)','Execution Plan Document','Referral to the right vendors']}},
-    growth_sme:{price:'٢٠٠',dur:'٣ جلسات خلال ٣ أسابيع',urgentStart:'هذا الأسبوع بأولوية عالية',readyStart:'خلال أسبوعين',flexStart:'حسب جدولك',
+    growth_sme:{price:'200',dur:'٣ جلسات خلال ٣ أسابيع',urgentStart:'هذا الأسبوع بأولوية عالية',readyStart:'خلال أسبوعين',flexStart:'حسب جدولك',
       includes:{ar:['جلسة Performance Snapshot الموسعة (١٢٠ دقيقة)','تقرير Gap Analysis المفصّل','جلستا Growth Strategy (٩٠ دقيقة لكل جلسة)','وثيقة Execution Plan المتكاملة','متابعة وتحويل للموردين الأنسب'],
         en:['Extended Performance Snapshot (120 min)','Detailed Gap Analysis Report','Two Growth Strategy Sessions','Comprehensive Execution Plan','Follow-up and vendor referral']}},
   },
@@ -301,7 +327,7 @@ function getPkgKey(){
 }
 
 const TT={
-  ar:{stepOf:'السؤال {n} من {total}',next:'التالي →',prev:'→ رجوع',showResult:'عرض نتيجتك ←',restart:'← ابدأ من جديد',errSelect:'الرجاء اختيار إجابة',errMulti:'اختر مشكلة واحدة على الأقل',freeLabel:'بكلمتين — شنو أكبر هدف تبيه من الاستشارة؟',freeSub:'(اختياري)',freePh:'مثال: أبي أعرف من وين أبدأ وأتجنب الأخطاء المكلفة...',resultLabel:'نتيجة التصنيف',resultTitle:'باقتك المقترحة',secProblems:'المشاكل التي حددتها',secIncludes:'شنو تحصل في الباقة',secDetails:'التفاصيل',lblDur:'المدة',lblPrice:'السعر',lblStart:'موعد البداية',lblClass:'تصنيف شركتك',multiHint:'يمكنك اختيار حتى ٣ مشاكل',currency:'دينار كويتي',
+  ar:{stepOf:'السؤال {n} من {total}',next:'← التالي',prev:'→ رجوع',showResult:'← عرض نتيجتك',restart:'← ابدأ من جديد',errSelect:'الرجاء اختيار إجابة',errMulti:'اختر مشكلة واحدة على الأقل',freeLabel:'بكلمتين — شنو أكبر هدف تبيه من الاستشارة؟',freeSub:'(اختياري)',freePh:'مثال: أبي أعرف من وين أبدأ وأتجنب الأخطاء المكلفة...',resultLabel:'نتيجة التصنيف',resultTitle:'باقتك المقترحة',secProblems:'المشاكل التي حددتها',secIncludes:'شنو تحصل في الباقة',secDetails:'التفاصيل',lblDur:'المدة',lblPrice:'السعر',lblStart:'موعد البداية',lblClass:'تصنيف شركتك',multiHint:'يمكنك اختيار حتى ٣ مشاكل',currency:'دينار كويتي',
     badgeLabels:{startup:'فئة: مشروع جديد',crisis_startup:'فئة: شركة ناشئة — أزمة',crisis_sme:'فئة: شركة صغيرة/متوسطة — أزمة',growth_startup:'فئة: شركة ناشئة — نمو',growth_sme:'فئة: شركة صغيرة/متوسطة — نمو'},
     classLabels:{startup:'شركة ناشئة',sme:'شركة صغيرة أو متوسطة'}},
   en:{stepOf:'Question {n} of {total}',next:'Next →',prev:'← Back',showResult:'Show My Result →',restart:'← Start Over',errSelect:'Please select an answer',errMulti:'Select at least one problem',freeLabel:'In your words — what is the #1 thing you want to achieve?',freeSub:'(optional)',freePh:'e.g. I want to know where to start and avoid costly mistakes...',resultLabel:'Classification Result',resultTitle:'Your Recommended Package',secProblems:'Problems you identified',secIncludes:"What's included",secDetails:'Details',lblDur:'Duration',lblPrice:'Price',lblStart:'Start Date',lblClass:'Company classification',multiHint:'You can select up to 3 problems',currency:'KD',
